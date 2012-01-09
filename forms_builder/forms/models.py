@@ -234,7 +234,8 @@ class AbstractFieldEntry(models.Model):
 ###################################################
 
 class Form(AbstractForm):
-    pass
+    class Meta:
+        abstract = False
 
 class Field(AbstractField):
     form = models.ForeignKey("Form", related_name="fields")
