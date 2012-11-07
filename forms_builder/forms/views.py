@@ -4,7 +4,11 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404, redirect, render_to_response
+try:
+    import jinja2
+    from coffin.shortcuts import get_object_or_404, redirect, render_to_response
+except ImportError:
+    from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
 from django.utils.http import urlquote
 
@@ -12,6 +16,7 @@ from forms_builder.forms.forms import FormForForm
 from forms_builder.forms.models import Form
 from forms_builder.forms.settings import USE_SITES
 from forms_builder.forms.signals import form_invalid, form_valid
+from govexec.models import Page
 
 
 def form_detail(request, slug, template="forms/form_detail.html"):
@@ -56,7 +61,7 @@ def form_detail(request, slug, template="forms/form_detail.html"):
                 msg.send()
             form_valid.send(sender=request, form=form_for_form, entry=entry)
             return redirect(reverse("form_sent", kwargs={"slug": form.slug}))
-    context = {"form": form, "form_for_form": form_for_form}
+    context = {"form": form, "form_for_form": form_for_form, "page": get_page(form, request)}
     return render_to_response(template, context, RequestContext(request))
 
 
@@ -66,5 +71,14 @@ def form_sent(request, slug, template="forms/form_sent.html"):
     """
     published = Form.objects.published(for_user=request.user)
     form = get_object_or_404(published, slug=slug)
-    context = {"form": form}
+    context = {"form": form, "page": get_page(form, request)}
     return render_to_response(template, context, RequestContext(request))
+
+def get_page(form, request):
+
+    return Page({
+        "type": "home",
+        "title": form.title,
+        "category": None,
+        "url": form.get_absolute_url(),
+        }, request, ad_settings=settings.DART_AD_DEFAULTS)
