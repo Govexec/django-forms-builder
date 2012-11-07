@@ -22,7 +22,7 @@ sites_field = None
 if settings.USE_SITES:
     from django.contrib.sites.models import Site
     def default_sites():
-        return [Site.objects.get_current()]
+        return [Site.objects.get_current().__unicode__()]
     sites_field = models.ManyToManyField(Site, default=default_sites)
 
 class FormManager(models.Manager):
