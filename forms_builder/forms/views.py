@@ -16,7 +16,7 @@ from forms_builder.forms.forms import FormForForm
 from forms_builder.forms.models import Form
 from forms_builder.forms.settings import USE_SITES
 from forms_builder.forms.signals import form_invalid, form_valid
-from govexec.models import Page
+from websites.models import Page
 
 
 def form_detail(request, slug, template="forms/form_detail.html"):
